@@ -1,0 +1,30 @@
+<div class="task-container">
+  <form [formGroup]="taskForm" class="task-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nova Tarefa</mat-label>
+      <input matInput type="text" formControlName="newTask" />
+    </mat-form-field>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="addTask()"
+      [disabled]="taskForm.invalid"
+    >
+      Adicionar
+    </button>
+  </form>
+
+  <mat-list>
+    <mat-list-item *ngFor="let task of tasks">
+      <mat-checkbox
+        [checked]="task.completed"
+        (change)="toggleCompletion(task.id)"
+      >
+        {{ task.title }}
+      </mat-checkbox>
+      <button mat-icon-button (click)="deleteTask(task.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+</div>
