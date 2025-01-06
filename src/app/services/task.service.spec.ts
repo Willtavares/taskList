@@ -1,69 +1,83 @@
 import { TestBed } from '@angular/core/testing';
 import { TaskService } from './task.service';
 import { Task } from '../models/task.model';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('TaskService', () => {
   let service: TaskService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule],
-      providers: [TaskService],
-    });
+    TestBed.configureTestingModule({});
     service = TestBed.inject(TaskService);
+
+    // Limpa o localStorage antes de cada teste
     localStorage.clear();
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('should be created', () => {
+  it('deve ser criado', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initialize tasks from localStorage', () => {
+  it('deve inicializar as tarefas do localStorage', () => {
     const mockTasks: Task[] = [
       { id: 1, title: 'Task 1', completed: false },
       { id: 2, title: 'Task 2', completed: true },
     ];
     localStorage.setItem('tasks', JSON.stringify(mockTasks));
 
-    const newService = TestBed.inject(TaskService);
+    const newService = new TaskService();
     expect(newService.getTasks()).toEqual(mockTasks);
   });
 
-  it('should add a new task', () => {
-    service.addTask('New Task');
+  it('deve retornar a lista de tarefas', () => {
+    expect(service.getTasks()).toEqual([]);
+
+    service.addTask('Nova tarefa');
     const tasks = service.getTasks();
     expect(tasks.length).toBe(1);
-    expect(tasks[0].title).toBe('New Task');
+    expect(tasks[0].title).toBe('Nova tarefa');
+  });
+
+  it('deve adicionar uma tarefa', () => {
+    service.addTask('Tarefa de teste');
+    const tasks = service.getTasks();
+
+    expect(tasks.length).toBe(1);
+    expect(tasks[0].title).toBe('Tarefa de teste');
     expect(tasks[0].completed).toBeFalse();
   });
 
-  it('should toggle task completion', () => {
-    service.addTask('Test Task');
+  it('deve alternar o estado de conclusão de uma tarefa', () => {
+    service.addTask('Tarefa para completar');
+    const task = service.getTasks()[0];
+
+    service.toggleTaskCompletion(task.id);
+    expect(task.completed).toBeTrue();
+
+    service.toggleTaskCompletion(task.id);
+    expect(task.completed).toBeFalse();
+  });
+
+  it('deve excluir uma tarefa', () => {
+    service.addTask('Tarefa a ser excluída');
+    const task = service.getTasks()[0];
+
+    service.deleteTask(task.id);
+    const tasks = service.getTasks();
+
+    expect(tasks.length).toBe(0);
+  });
+
+  it('deve salvar tarefas no localStorage ao adicionar, alternar ou excluir', () => {
+    spyOn(localStorage, 'setItem');
+
+    service.addTask('Teste de salvar');
+    expect(localStorage.setItem).toHaveBeenCalled();
+
     const task = service.getTasks()[0];
     service.toggleTaskCompletion(task.id);
-    expect(service.getTasks()[0].completed).toBeTrue();
-    service.toggleTaskCompletion(task.id);
-    expect(service.getTasks()[0].completed).toBeFalse();
-  });
+    expect(localStorage.setItem).toHaveBeenCalledTimes(2);
 
-  it('should delete a task', () => {
-    service.addTask('Task to Delete');
-    const taskId = service.getTasks()[0].id;
-    service.deleteTask(taskId);
-    expect(service.getTasks().length).toBe(0);
-  });
-
-  it('should save tasks to localStorage', () => {
-    service.addTask('Task 1');
-    service.addTask('Task 2');
-    const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-    expect(savedTasks.length).toBe(2);
-    expect(savedTasks[0].title).toBe('Task 1');
-    expect(savedTasks[1].title).toBe('Task 2');
+    service.deleteTask(task.id);
+    expect(localStorage.setItem).toHaveBeenCalledTimes(3);
   });
 });

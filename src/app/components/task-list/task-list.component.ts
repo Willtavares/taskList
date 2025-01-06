@@ -15,6 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, NgForOf } from '@angular/common';
 import { TaskService } from '../../services/task.service';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-task-list',
@@ -32,8 +33,9 @@ import { TaskService } from '../../services/task.service';
     NgForOf,
     ReactiveFormsModule,
     NoopAnimationsModule,
+    CommonModule,
   ],
-  providers: [CommonModule],
+  providers: [BrowserModule],
 })
 export class TaskListComponent {
   taskForm: FormGroup;
